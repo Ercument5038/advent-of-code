@@ -1,4 +1,3 @@
-import { checkPrimeSync } from "crypto";
 import fs from "fs";
 
 // get content of file
