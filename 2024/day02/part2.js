@@ -4,7 +4,7 @@ import fs from "fs";
 const Data = fs.readFileSync("input.txt");
 
 // print content of file
-console.log(Data.toString());
+// console.log(Data.toString());
 
 // Split into lines
 const lines = Data.toString().trim().split(/\n/);
@@ -12,25 +12,52 @@ const lines = Data.toString().trim().split(/\n/);
 // Split each row into numbers
 const rows = lines.map((line) => line.trim().split(/\s+/).map(Number));
 
-// Split into columns
-const left = rows.map((pair) => pair[0]);
-const right = rows.map((pair) => pair[1]);
+let sumSafe = 0;
 
-let score = 0;
-
-// iterate through each element
-for (const x of left) {
-  let sum = 0;
-  // iterate through each element
-  for (const y of right) {
-    // check if one elem from left is equal to one from right
-    if (x == y) {
-      // increment sum for each same number
-      sum++;
+// check if an array is increasing or decreasing
+function CheckSafeReport(num) {
+  // get direction (inc, dec)
+  let num_dir = num[1] - num[0];
+  // if result of num_dir * diff is negative means it isnt strictly inscreasing
+  // or decreasing
+  for (let i = 0; i < num.length - 1; i++) {
+    if (num_dir * (num[i + 1] - num[i]) <= 0) {
+      return false;
     }
   }
-  // calculate score
-  score = score + x * sum;
+
+  // if differencee is less then 1 or greaten then 3 is is not safe
+  for (let i = 0; i < num.length - 1; i++) {
+    let diff = Math.abs(num[i] - num[i + 1]);
+    if (diff < 1 || diff > 3) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
-console.log(score);
+// wrapper for CheckSafeReport()
+function CheckWithRemoval(num) {
+  // check if row is safe
+  if (CheckSafeReport(num)) return true;
+
+  // if not save then remove each element and check again
+  for (let i = 0; i < num.length; i++) {
+    let reduced = num.toSpliced(i, 1);
+    // check if save with one removed
+    if (CheckSafeReport(reduced)) {
+      return true;
+    }
+  }
+  // if nothing safe then is unsafe
+  return false;
+}
+
+for (let i = 0; i < rows.length; i++) {
+  if (CheckWithRemoval(rows[i])) {
+    sumSafe++;
+  }
+}
+
+console.log(sumSafe);
